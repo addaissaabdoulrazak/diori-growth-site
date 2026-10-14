@@ -1,0 +1,20 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { Image } from "astro:assets";
+import portrait from "@/assets/malik-diori-portrait.png";
+import { siteConfig } from "@/config/site";
+export const prerender = true;
+---
+<SiteLayout title="Le cabinet DIORI GROWTH" description="Découvrez DIORI GROWTH, cabinet basé à Niamey, sa mission et son directeur général ALI DIORI Abdoul Malik.">
+  <section class="page-hero"><div class="shell"><div class="eyebrow">Le cabinet</div><h1 class="display">Grandir ensemble, avec un cap clair.</h1><p>DIORI GROWTH est un cabinet africain de développement commercial, de formation professionnelle et d'accompagnement des entreprises, basé à Niamey au Niger.</p></div></section>
+  <section class="section-space"><div class="shell about-band">
+    <Image class="about-portrait" src={portrait} width={600} widths={[320,480,600]} sizes="(max-width:720px) 90vw, 40vw" format="webp" alt="Portrait de Malik DIORI" loading="lazy" />
+    <div class="about-copy"><div class="eyebrow">La direction</div><h2>{siteConfig.contactName}</h2><p class="person-role">{siteConfig.contactRole}</p><p>{siteConfig.legalRepresentative} représente DIORI GROWTH et coordonne l'accompagnement des entreprises, la préparation des projets et la mobilisation d'experts selon les besoins.</p><p>Les formateurs et consultants apportent leur expertise métier dans le cadre de missions définies avec les organisations accompagnées.</p><a class="button button-primary" href="/contact/">Échanger avec le cabinet <span aria-hidden="true">↗</span></a></div>
+  </div></section>
+  <section class="section-space programs"><div class="shell content-grid">
+    <article class="card service-detail"><h2>Notre mission</h2><p>Accompagner les entreprises et les professionnels dans le développement de leurs compétences et de leurs activités, grâce à la formation, au développement commercial et à des opportunités d'échange.</p></article>
+    <article class="card service-detail"><h2>Notre vision</h2><p>Contribuer à la construction d'entreprises plus compétitives et durables en Afrique. Notre zone d'intervention actuelle est le Niger, avec une ambition de développement panafricain.</p></article>
+    <article class="card service-detail"><h2>Nos valeurs</h2><p>Excellence, engagement, impact, éthique et innovation.</p></article>
+    <article class="card service-detail"><h2>Notre implantation</h2><p>{siteConfig.address}, {siteConfig.city}, {siteConfig.country}.</p><p>Registre du commerce : {siteConfig.registrationNumber}.</p><a class="text-link" href="/documents/mentions-legales/">Informations légales</a></article>
+  </div></section>
+</SiteLayout>

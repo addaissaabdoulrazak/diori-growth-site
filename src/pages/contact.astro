@@ -1,0 +1,13 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import ContactForm from "@/components/ContactForm.astro";
+import ContactDetails from "@/components/ContactDetails.astro";
+export const prerender = true;
+---
+<SiteLayout title="Contact et demande de devis" description="Contactez DIORI GROWTH à Niamey au +227 90 32 31 33 pour une formation, un accompagnement commercial ou un projet de numérique responsable.">
+  <section class="page-hero"><div class="shell"><div class="eyebrow">Contact</div><h1 class="display">Faisons avancer votre projet.</h1><p>Présentez-nous votre contexte, vos objectifs et vos contraintes. Nous pourrons définir le périmètre d'une proposition adaptée à votre organisation.</p></div></section>
+  <section class="page-content"><div class="shell contact-panel">
+    <div><div class="eyebrow">Un échange direct</div><h2>Commençons par votre besoin.</h2><p>Les prestations d'entreprise sont principalement sur devis, selon le contenu, les participants, le format et les experts mobilisés.</p><ContactDetails /></div>
+    <ContactForm />
+  </div></section>
+</SiteLayout>

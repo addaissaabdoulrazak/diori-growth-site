@@ -1,0 +1,10 @@
+---
+import Brand from "@/components/Brand.astro";
+import { siteConfig, contactPhoneHref } from "@/config/site";
+---
+<footer class="site-footer"><div class="shell footer-main">
+  <div><Brand dark /><p>Grandir. Performer. Transformer.</p><p>Formation professionnelle, développement commercial et solutions responsables pour les entreprises au Niger.</p></div>
+  <div><h2 class="footer-title">Explorer</h2><nav class="footer-links" aria-label="Liens de pied de page"><a href="/services/">Services</a><a href="/formations/">Formations</a><a href="/experts/">Experts & méthode</a><a href="/a-propos/">Le cabinet</a><a href="/contact/">Contact</a></nav></div>
+  <div><h2 class="footer-title">Retrouvons-nous</h2><p>{siteConfig.address}<br />{siteConfig.city}, {siteConfig.country}</p>{siteConfig.phone && <p><a href={contactPhoneHref}>{siteConfig.phoneDisplay}</a></p>}{siteConfig.email && <p><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></p>}<p class="footer-registration">RCCM : {siteConfig.registrationNumber}</p></div>
+  </div><div class="shell footer-bottom"><span>© {new Date().getFullYear()} DIORI GROWTH</span><nav aria-label="Informations légales"><a href="/documents/mentions-legales/">Mentions légales</a><a href="/documents/confidentialite/">Confidentialité</a></nav></div>
+</footer>

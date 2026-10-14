@@ -1,0 +1,196 @@
+---
+import { siteConfig, whatsappHref } from "@/config/site";
+import { getCollection } from "astro:content";
+
+interface Props { selectedService?: string; }
+const { selectedService = "" } = Astro.props;
+const [serviceEntries, trainingEntries] = await Promise.all([
+  getCollection("services", ({ data }) => siteConfig.preview || data.approvalStatus === "approved"),
+  getCollection("trainings", ({ data }) => siteConfig.preview || data.approvalStatus === "approved"),
+]);
+const visibleOffers = [
+  ...serviceEntries.map((entry) => entry.data.title),
+  ...trainingEntries.map((entry) => entry.data.title),
+];
+const canSend = siteConfig.contactFormEnabled && !siteConfig.preview;
+---
+
+<form class="contact-form" action="/api/contact" method="post" data-contact-form data-send-enabled={canSend} data-whatsapp={whatsappHref("")}>
+  <div class="form-grid">
+    <div class="field">
+      <label for="contact-name">Votre nom <span aria-hidden="true">*</span></label>
+      <input id="contact-name" name="name" autocomplete="name" maxlength="100" required />
+    </div>
+    <div class="field">
+      <label for="contact-company">Entreprise</label>
+      <input id="contact-company" name="company" autocomplete="organization" maxlength="120" />
+    </div>
+    <div class="field">
+      <label for="contact-email">E-mail professionnel {canSend ? <span aria-hidden="true">*</span> : <span>(facultatif)</span>}</label>
+      <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required={canSend} />
+    </div>
+    <div class="field">
+      <label for="contact-phone">Téléphone <span>(facultatif)</span></label>
+      <input id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+    </div>
+    <div class="field">
+      <label for="contact-service">Sujet de la demande</label>
+      <select id="contact-service" name="service">
+        <option value="">Choisir si vous le souhaitez</option>
+        <option value="Formation ou mobilisation d'expertise" selected={selectedService === "Formation ou mobilisation d'expertise"}>Formation ou mobilisation d'expertise</option>
+        {visibleOffers.map((offer) => <option value={offer} selected={selectedService === offer}>{offer}</option>)}
+        <option value="Autre besoin" selected={selectedService === "Autre besoin"}>Autre besoin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="contact-participants">Nombre indicatif de participants</label>
+      <input id="contact-participants" name="participants" type="number" min="1" max="10000" inputmode="numeric" />
+    </div>
+    <div class="field">
+      <label for="contact-format">Format envisagé</label>
+      <select id="contact-format" name="format">
+        <option value="">À discuter</option>
+        {siteConfig.availableFormats.map((format) => <option value={format}>{format}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for="contact-period">Période souhaitée <span>(facultatif)</span></label>
+      <input id="contact-period" name="period" maxlength="120" placeholder="Ex. : premier trimestre 2027" />
+    </div>
+    <div class="field">
+      <label for="contact-sector">Secteur d'activité <span>(facultatif)</span></label>
+      <input id="contact-sector" name="sector" maxlength="120" />
+    </div>
+    <div class="field">
+      <label for="contact-role">Votre fonction <span>(facultatif)</span></label>
+      <input id="contact-role" name="role" autocomplete="organization-title" maxlength="120" />
+    </div>
+    <div class="field full-width">
+      <label for="contact-message">Votre besoin</label>
+      <textarea id="contact-message" name="message" maxlength="3000" placeholder="Contexte, objectif ou compétence recherchée…"></textarea>
+    </div>
+  </div>
+  <div class="honeypot" aria-hidden="true">
+    <label for="contact-website">Ne pas remplir ce champ</label>
+    <input id="contact-website" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+  {canSend && siteConfig.turnstileSiteKey && <div class="cf-turnstile" data-sitekey={siteConfig.turnstileSiteKey}></div>}
+  <label class="form-check"><input type="checkbox" name="contactPermission" value="yes" required />Je souhaite être recontacté par DIORI GROWTH au sujet de cette demande.</label>
+  <p class="form-note">Vos informations servent à examiner votre demande et à vous répondre. Aucune inscription à une newsletter. <a href={siteConfig.privacyPolicyUrl}>Confidentialité</a>.</p>
+  {!canSend && <p class="resource-note" role="note">Préparez votre demande et poursuivez l'échange sur WhatsApp. L'envoi par email n'est pas encore disponible.</p>}
+  <div class="form-status" role="status" aria-live="polite" aria-atomic="true" data-kind=""></div>
+  <div>
+    <button class="button button-primary" type="submit" disabled={!canSend && !siteConfig.phone}>{canSend ? "Envoyer la demande" : "Préparer le message WhatsApp"} <span aria-hidden="true">↗</span></button>
+    {!canSend && <p class="form-note">Ouvre WhatsApp avec un message à relire. Vous choisissez ensuite de l'envoyer. Aucun envoi automatique.</p>}
+    <noscript><p class="form-note">JavaScript est nécessaire pour préparer le message. Vous pouvez aussi utiliser les coordonnées de contact.</p></noscript>
+  </div>
+</form>
+
+{canSend && siteConfig.turnstileSiteKey && <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+
+<script>
+  type ContactPayload = {
+    name: string;
+    company: string;
+    email: string;
+    phone: string;
+    service: string;
+    participants: string;
+    format: string;
+    message: string;
+    website: string;
+    turnstileToken: string;
+    period: string;
+    sector: string;
+    role: string;
+    contactPermission: string;
+  };
+
+  declare global {
+    interface Window {
+      turnstile?: { getResponse: () => string; reset: () => void };
+    }
+  }
+
+  document.querySelectorAll<HTMLFormElement>("[data-contact-form]").forEach((form) => {
+    const status = form.querySelector<HTMLElement>(".form-status");
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    let sending = false;
+
+    const requestedService = new URLSearchParams(window.location.search).get("service");
+    const serviceField = form.querySelector<HTMLSelectElement>('select[name="service"]');
+    if (requestedService && serviceField && Array.from(serviceField.options).some((option) => option.value === requestedService)) {
+      serviceField.value = requestedService;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (sending || !form.reportValidity()) return;
+      if (form.dataset.sendEnabled !== "true") {
+        if (!form.dataset.whatsapp) return;
+        const values = new FormData(form);
+        const rows = [
+          "Bonjour DIORI GROWTH, je souhaite échanger sur le projet suivant.",
+          ...[["Nom", "name"], ["Organisation", "company"], ["Secteur", "sector"], ["Fonction", "role"], ["Email", "email"], ["Téléphone", "phone"], ["Sujet", "service"], ["Participants", "participants"], ["Format", "format"], ["Période", "period"], ["Besoin", "message"]].flatMap(([label, key]) => {
+            const value = String(values.get(key ?? "") ?? "").trim();
+            return value ? [`${label} : ${value}`] : [];
+          }),
+          "Je souhaite être recontacté au sujet de cette demande.",
+        ];
+        const url = new URL(form.dataset.whatsapp!);
+        url.searchParams.set("text", rows.join("\n"));
+        window.location.assign(url.toString());
+        return;
+      }
+      sending = true;
+      if (button) button.disabled = true;
+      if (status) {
+        status.textContent = "Envoi en cours…";
+        status.dataset.kind = "";
+      }
+
+      const data = new FormData(form);
+      const payload: ContactPayload = {
+        name: String(data.get("name") ?? ""),
+        company: String(data.get("company") ?? ""),
+        email: String(data.get("email") ?? ""),
+        phone: String(data.get("phone") ?? ""),
+        service: String(data.get("service") ?? ""),
+        participants: String(data.get("participants") ?? ""),
+        format: String(data.get("format") ?? ""),
+        message: String(data.get("message") ?? ""),
+        website: String(data.get("website") ?? ""),
+        turnstileToken: window.turnstile?.getResponse() ?? "",
+        period: String(data.get("period") ?? ""),
+        sector: String(data.get("sector") ?? ""),
+        role: String(data.get("role") ?? ""),
+        contactPermission: String(data.get("contactPermission") ?? ""),
+      };
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json() as { message?: string };
+        if (!response.ok) throw new Error(result.message ?? "L'envoi n'a pas abouti. Réessayez plus tard.");
+        if (status) {
+          status.textContent = result.message ?? "Votre demande a été acceptée par le service d'envoi.";
+          status.dataset.kind = "success";
+        }
+        form.reset();
+        window.turnstile?.reset();
+      } catch (error) {
+        if (status) {
+          status.textContent = error instanceof Error ? error.message : "L'envoi n'a pas abouti. Réessayez plus tard.";
+          status.dataset.kind = "error";
+        }
+      } finally {
+        window.turnstile?.reset();
+        sending = false;
+        if (button) button.disabled = false;
+      }
+    });
+  });
+</script>

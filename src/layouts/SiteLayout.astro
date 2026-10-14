@@ -1,0 +1,75 @@
+---
+import SiteHeader from "@/components/SiteHeader.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import { absoluteUrl, siteConfig } from "@/config/site";
+import "@/styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  socialImage?: string;
+}
+
+const { title, description, noindex = false, socialImage = "/social-card.jpg" } = Astro.props;
+const canonical = absoluteUrl(Astro.url.pathname);
+const robots = noindex || siteConfig.preview || !siteConfig.domain ? "noindex, nofollow, noarchive" : "index, follow";
+const imageUrl = absoluteUrl(socialImage);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content="#06283b" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {imageUrl && <meta property="og:image" content={imageUrl} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:site_name" content="DIORI GROWTH" />
+    <title>{title} · DIORI GROWTH</title>
+  </head>
+  <body>
+    <SiteHeader />
+    <main id="contenu"><slot /></main>
+    <SiteFooter />
+  </body>
+</html>
+
+<script>
+  document.documentElement.classList.add("js");
+  const toggle = document.querySelector<HTMLButtonElement>(".menu-toggle");
+  const nav = document.querySelector<HTMLElement>("#primary-navigation");
+
+  toggle?.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+    nav?.setAttribute("data-open", String(open));
+  });
+
+  nav?.addEventListener("click", (event) => {
+    if ((event.target as HTMLElement).closest("a")) {
+      nav.setAttribute("data-open", "false");
+      toggle?.setAttribute("aria-expanded", "false");
+      toggle?.setAttribute("aria-label", "Ouvrir le menu");
+    }
+  });
+
+  nav?.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && nav.getAttribute("data-open") === "true") {
+      nav.setAttribute("data-open", "false");
+      toggle?.setAttribute("aria-expanded", "false");
+      toggle?.setAttribute("aria-label", "Ouvrir le menu");
+      toggle?.focus();
+    }
+  });
+</script>

@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from "astro:content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/config/site";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const entries = await getCollection("trainings", ({ data }) =>
+    siteConfig.preview || data.approvalStatus === "approved",
+  );
+  return entries.map((training) => ({ params: { slug: training.id }, props: { training } }));
+}
+
+const { training } = Astro.props;
+const { Content } = await render(training);
+const expert = (await getCollection("experts", ({ data }) => data.approvalStatus === "approved")).find(entry => entry.data.name === training.data.trainer);
+const contactLink = `/contact/?service=${encodeURIComponent(training.data.title)}`;
+---
+
+<SiteLayout title={training.data.title} description={training.data.objective}>
+  <section class="page-hero"><div class="shell">
+    <a class="eyebrow" href="/formations/">← Catalogue des formations</a>
+    {training.data.approvalStatus === "draft" && <p><span class="preview-stamp">Programme à valider</span></p>}
+    <h1 class="display">{training.data.title}</h1>
+    <p>{training.data.objective}</p>
+  </div></section>
+  <section class="page-content"><div class="shell detail-grid">
+    <article class="card service-detail"><h2>À qui s'adresse ce programme ?</h2><ul>{training.data.audience.map((item) => <li>{item}</li>)}</ul>
+      <h2>Au programme</h2><Content />
+      {training.data.prerequisites && <><h2>Prérequis</h2><p>{training.data.prerequisites}</p></>}
+      {training.data.assessment && <><h2>Évaluation</h2><p>{training.data.assessment}</p></>}
+      {training.data.reference && <p class="resource-note">{training.data.reference}</p>}
+    </article>
+    <aside class="card service-detail detail-aside"><h2>Préparer votre formation</h2>
+      <dl>{training.data.duration && <><dt>Durée</dt><dd>{training.data.duration}</dd></>}<dt>Format de référence</dt><dd>{training.data.format.join(", ")}</dd>
+        {expert && <><dt>Expert présenté pour ce programme</dt><dd><a href={`/experts/#${expert.id}`}>{expert.data.name}</a></dd></>}
+        <dt>Parcours d'entreprise</dt><dd>Sur devis</dd>
+      </dl>
+      <p>Pour votre équipe, nous précisons ensemble la durée, le format, les prérequis, l'évaluation et la disponibilité de l'intervenant.</p>
+      <a class="button button-primary" href={contactLink}>Demander un programme et un devis</a>
+    </aside>
+  </div></section>
+</SiteLayout>

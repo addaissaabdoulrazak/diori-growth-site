@@ -1,0 +1,14 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+
+export const prerender = true;
+---
+
+<SiteLayout title="Page introuvable" description="Cette page n'existe pas ou a été déplacée." noindex>
+  <section class="page-hero"><div class="shell">
+    <div class="eyebrow">Erreur 404</div>
+    <h1 class="display">Cette page n'existe pas.</h1>
+    <p>Le lien a peut-être changé. Revenez à l'accueil ou parcourez les services disponibles.</p>
+    <div class="hero-actions"><a class="button button-gold" href="/">Retour à l'accueil</a><a class="button button-secondary" href="/services/">Voir les services</a></div>
+  </div></section>
+</SiteLayout>

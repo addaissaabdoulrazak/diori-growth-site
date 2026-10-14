@@ -1,0 +1,31 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig, contactPhoneHref } from "@/config/site";
+export const prerender = true;
+export function getStaticPaths() {
+  return ["mentions-legales", "confidentialite"].map(slug => ({ params: { slug } }));
+}
+const legal = Astro.params.slug === "mentions-legales";
+const title = legal ? "Mentions légales" : "Confidentialité";
+---
+<SiteLayout title={title} description={legal ? "Identification et coordonnées du cabinet DIORI GROWTH à Niamey, Niger." : "Informations sur les demandes de contact et les données personnelles sur le site DIORI GROWTH."} noindex>
+  <section class="page-hero"><div class="shell"><div class="eyebrow">DIORI GROWTH</div><h1 class="display">{title}</h1></div></section>
+  <section class="page-content"><article class="shell legal-draft">
+  {legal ? <>
+    <h2>Identification du cabinet</h2>
+    <p><strong>{siteConfig.legalIdentity}</strong><br />Registre du commerce : {siteConfig.registrationNumber}.</p>
+    <h2>Représentant</h2><p>{siteConfig.legalRepresentative}, {siteConfig.contactRole}.</p>
+    <h2>Siège et contact</h2><p>{siteConfig.address}, {siteConfig.city}, {siteConfig.country}.</p><p>Téléphone : <a href={contactPhoneHref}>{siteConfig.phoneDisplay}</a>.</p>
+    {siteConfig.email && <p>Email : <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.</p>}
+    <h2>Contenus et visuels</h2><p>Les informations, le logo et les portraits présentés sur ce site sont utilisés pour la présentation de DIORI GROWTH. Pour toute demande relative à un contenu, contactez le cabinet.</p>
+    <h2>Programmes et propositions</h2><p>Les descriptifs présentent les domaines d'intervention et les programmes. Les dates, disponibilités, tarifs et modalités applicables à une prestation sont précisés dans la proposition correspondante.</p>
+  </> : <>
+    <h2>Vos demandes de contact</h2><p>DIORI GROWTH utilise les informations communiquées pour examiner votre besoin, vous répondre et préparer une éventuelle proposition. Aucune inscription à une newsletter n'est prévue sur ce site.</p>
+    <h2>Formulaire du site</h2>
+    {!siteConfig.contactFormEnabled || siteConfig.preview ? <p>L'envoi par formulaire est actuellement indisponible. Les champs saisis ne sont pas enregistrés par le site. Vous pouvez joindre directement le cabinet par téléphone ou WhatsApp.</p> : <p>Le formulaire transmet le nom, l'entreprise, les coordonnées de contact et les informations relatives au projet au cabinet. L'envoi est réalisé par Resend et la protection antispam est assurée par Cloudflare Turnstile.</p>}
+    <h2>Échanges par téléphone ou WhatsApp</h2><p>En utilisant le lien WhatsApp, vous quittez le site et utilisez le service de WhatsApp, qui applique ses propres conditions et sa politique de confidentialité. Transmettez uniquement les informations utiles à votre demande.</p>
+    <h2>Cookies et mesure d'audience</h2><p>Aucun outil publicitaire, aucune mesure d'audience et aucune newsletter ne sont installés sur cette version du site.</p>
+    <h2>Contact relatif à vos informations</h2><p>Pour une question concernant les informations communiquées à DIORI GROWTH, contactez le cabinet au <a href={contactPhoneHref}>{siteConfig.phoneDisplay}</a> ou à {siteConfig.address}, {siteConfig.city}, {siteConfig.country}.</p>
+  </>}
+  </article></section>
+</SiteLayout>

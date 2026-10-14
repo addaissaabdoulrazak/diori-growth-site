@@ -1,0 +1,44 @@
+---
+import { getCollection } from "astro:content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/config/site";
+
+export const prerender = true;
+
+const allServices = await getCollection("services");
+const services = allServices
+  .filter(({ data }) => siteConfig.preview || data.approvalStatus === "approved")
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<SiteLayout title="Nos services" description="Formation, développement commercial, intelligence artificielle et Green IT : les services de DIORI GROWTH pour les organisations au Niger.">
+  <section class="page-hero">
+    <div class="shell">
+      <div class="eyebrow">Services</div>
+      <h1 class="display">Faire progresser vos équipes et votre activité.</h1>
+      <p>De la formation à la prospection, de l'IA au numérique responsable : un accompagnement défini selon les priorités de votre organisation.</p>
+    </div>
+  </section>
+  <section class="page-content">
+    <div class="shell">
+      {services.length ? (
+        <div class="content-grid">
+          {services.map((service) => (
+            <article class="card service-detail">
+              {service.data.approvalStatus === "draft" && <span class="preview-stamp">Proposition à valider</span>}
+              <h2 style="margin-top: .8rem;">{service.data.title}</h2>
+              <p>{service.data.summary}</p>
+              <a class="text-link" href={`/services/${service.id}/`}>Découvrir ce service <span aria-hidden="true">↗</span></a>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <h2>Les offres détaillées seront publiées après validation.</h2>
+          <p>Un besoin de formation ou d'intervention peut être décrit dans une demande. Le périmètre et les modalités seront à confirmer avant toute proposition.</p>
+          <a class="button button-primary" href="/contact/">Présenter un besoin</a>
+        </div>
+      )}
+    </div>
+  </section>
+</SiteLayout>

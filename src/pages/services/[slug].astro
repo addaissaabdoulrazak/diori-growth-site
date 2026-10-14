@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from "astro:content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/config/site";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const entries = await getCollection("services", ({ data }) =>
+    siteConfig.preview || data.approvalStatus === "approved",
+  );
+  return entries.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}
+
+const { service } = Astro.props;
+const { Content } = await render(service);
+const contactLink = `/contact/?service=${encodeURIComponent(service.data.title)}`;
+---
+
+<SiteLayout title={service.data.title} description={service.data.summary}>
+  <section class="page-hero">
+    <div class="shell">
+      <a class="eyebrow" href="/services/">← Tous les services</a>
+      {service.data.approvalStatus === "draft" && <p><span class="preview-stamp">Proposition commerciale à valider</span></p>}
+      <h1 class="display">{service.data.title}</h1>
+      <p>{service.data.summary}</p>
+    </div>
+  </section>
+  <section class="page-content">
+    <div class="shell content-grid">
+      <article class="card service-detail">
+        <Content />
+      </article>
+      <aside class="card service-detail">
+        <h2>Pour qui ?</h2>
+        {service.data.audience.length
+          ? <ul>{service.data.audience.map((audience) => <li>{audience}</li>)}</ul>
+          : <p>À préciser selon la demande.</p>}
+        <p>Les modalités, le calendrier, les livrables et l'intervenant sont à définir selon le projet et la disponibilité des personnes concernées.</p>
+        <a class="button button-primary" href={contactLink}>Échanger sur ce besoin <span aria-hidden="true">↗</span></a>
+      </aside>
+    </div>
+  </section>
+</SiteLayout>

@@ -1,0 +1,10 @@
+---
+import { Image } from "astro:assets";
+import logoLight from "@/assets/diori-logo-white.png";
+import logoDark from "@/assets/diori-logo-navy.jpg";
+interface Props { dark?: boolean; }
+const { dark = false } = Astro.props;
+---
+<a class:list={["brand", { "brand-dark": dark }]} href="/" aria-label="DIORI GROWTH — accueil">
+  <span class="logo-window"><Image src={dark ? logoDark : logoLight} width={420} format="webp" alt="DIORI GROWTH" loading="eager" /></span>
+</a>

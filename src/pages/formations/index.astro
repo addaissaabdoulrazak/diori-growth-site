@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/config/site";
+import Programs from "@/components/Programs.astro";
+
+export const prerender = true;
+
+const allTrainings = await getCollection("trainings");
+const trainings = allTrainings.filter(({ data }) => siteConfig.preview || data.approvalStatus === "approved");
+---
+
+<SiteLayout title="Formations professionnelles" description="Découvrez les programmes IA et performance en entreprise, finance et gestion des PME, et les formations sur mesure de DIORI GROWTH.">
+  <section class="page-hero">
+    <div class="shell">
+      <div class="eyebrow">Formations</div>
+      <h1 class="display">Un programme construit à partir de vos objectifs.</h1>
+      <p>Explorez les thématiques présentées dans nos masterclass ou construisons ensemble un parcours adapté à votre équipe, en présentiel, à distance ou en hybride.</p>
+    </div>
+  </section>
+  <section class="page-content">
+    <div class="shell">
+      {trainings.length ? (
+        <div class="content-grid">
+          {trainings.map((training) => <article class="card service-detail">
+            {training.data.approvalStatus === "draft" && <span class="preview-stamp">Programme à valider</span>}
+            <h2>{training.data.title}</h2><p>{training.data.objective}</p>
+            <a class="text-link" href={`/formations/${training.id}/`}>Voir le programme <span aria-hidden="true">↗</span></a>
+          </article>)}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <h2>Le catalogue sera renseigné après validation des programmes.</h2>
+          <p>Aucune date de session ni fiche de formation n'est publiée pour le moment. Vous pouvez décrire un objectif ou une compétence à développer ; le besoin sera étudié avant toute proposition.</p>
+          <a class="button button-primary" href="/contact/?service=Formations%20sur%20mesure">Demander un programme</a>
+        </div>
+      )}
+    </div>
+  </section>
+  <Programs />
+</SiteLayout>

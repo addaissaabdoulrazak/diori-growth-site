@@ -1,0 +1,11 @@
+---
+import { contactPhoneHref, siteConfig, whatsappHref } from "@/config/site";
+const whatsapp = whatsappHref("Bonjour DIORI GROWTH, je souhaite échanger sur un projet pour mon organisation et obtenir une proposition.");
+---
+<div class="contact-card">
+  <strong>{siteConfig.contactName} · {siteConfig.contactRole}</strong>
+  <p>{siteConfig.address}<br />{siteConfig.city}, {siteConfig.country}</p>
+  {siteConfig.phone && <p><a class="text-link" href={contactPhoneHref}>{siteConfig.phoneDisplay}</a></p>}
+  {siteConfig.email && <p><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></p>}
+  {whatsapp && <a class="button button-primary" href={whatsapp} target="_blank" rel="noopener noreferrer">Échanger sur WhatsApp <span aria-hidden="true">↗</span></a>}
+</div>

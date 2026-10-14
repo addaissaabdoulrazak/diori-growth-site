@@ -1,0 +1,46 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/config/site";
+
+export const prerender = true;
+
+const allExperts = await getCollection("experts");
+const experts = allExperts.filter(({ data }) => siteConfig.preview || data.approvalStatus === "approved");
+---
+
+<SiteLayout title="Experts et méthode" description="Comment sont définis les besoins et coordonnés les intervenants d'un projet de formation.">
+  <section class="page-hero"><div class="shell">
+    <div class="eyebrow">Experts & méthode</div>
+    <h1 class="display">La bonne expertise, selon le projet.</h1>
+    <p>La coordination permet de préciser le besoin et de rechercher un intervenant adapté. Les personnes interviennent selon leur disponibilité et le périmètre convenu.</p>
+  </div></section>
+  <section class="page-content"><div class="shell">
+    <div class="content-grid">
+      <article class="card service-detail"><span class="offer-number">01</span><h2 style="margin-top: 1rem;">Clarifier</h2><p>Les objectifs, le contexte, les participants et les contraintes sont précisés avant de formuler une demande d'intervention.</p></article>
+      <article class="card service-detail"><span class="offer-number">02</span><h2 style="margin-top: 1rem;">Rechercher</h2><p>Un intervenant local ou international peut être envisagé selon le besoin, le périmètre du projet et sa disponibilité.</p></article>
+      <article class="card service-detail"><span class="offer-number">03</span><h2 style="margin-top: 1rem;">Coordonner</h2><p>La coordination de la demande et l'animation assurée par l'expert restent des rôles distincts à confirmer avec les parties concernées.</p></article>
+      <article class="card service-detail"><span class="offer-number">04</span><h2 style="margin-top: 1rem;">Confirmer</h2><p>Le contenu, le format, les responsabilités et les conditions sont définis avant l'engagement du projet.</p></article>
+    </div>
+    {experts.length > 0 && <section class="section-space">
+      <div class="section-heading"><div class="eyebrow">Les intervenants</div><h2>Des expertises pour vos enjeux métiers.</h2><p>Découvrez les intervenants et les masterclass présentées par DIORI GROWTH. Leur participation à un nouveau projet dépend du besoin et de leur disponibilité.</p></div>
+      <p class="resource-note expert-archive-note">Ces visuels présentent les programmes annoncés en 2026. Les modalités d'une nouvelle session sont à convenir avec le cabinet.</p>
+      <div class="content-grid expert-grid">{experts.map((expert) => <article id={expert.id} class="card service-detail expert-card">
+        {expert.data.masterclass ? <figure class="expert-masterclass">
+          <div class="expert-poster-heading"><span class="eyebrow">Masterclass</span><span class="archive-label">Archive · 2026</span></div>
+          <a class="expert-poster-link" href={expert.data.masterclass.poster.src} target="_blank" rel="noopener noreferrer" aria-label={`Agrandir l'affiche « ${expert.data.masterclass.title} » (nouvel onglet)`}>
+            <Image src={expert.data.masterclass.poster} width={640} widths={[360,640,960]} sizes="(max-width: 720px) calc(100vw - 5rem), (max-width: 1250px) calc(50vw - 5rem), 544px" format="webp" quality={88} alt={expert.data.masterclass.alt} loading="lazy" />
+            <span class="expert-poster-caption">Agrandir l'affiche <span aria-hidden="true">↗</span></span>
+          </a>
+          <figcaption>{expert.data.masterclass.title}</figcaption>
+        </figure> : <div class="expert-initial" aria-hidden="true">{expert.data.name.split(" ").map(n=>n[0]).slice(0,2).join("")}</div>}
+        {expert.data.approvalStatus === "draft" && <span class="preview-stamp">Profil à valider</span>}
+        <h2>{expert.data.name}</h2><p class="person-role">{expert.data.role}</p><p>{expert.data.biography}</p>
+        <ul class="expert-specialties">{expert.data.expertise.map(item => <li>{item}</li>)}</ul>
+        {expert.data.masterclass && <div class="expert-program-link"><a class="text-link" href={`/formations/${expert.data.masterclass.trainingId}/`}>Découvrir le programme <span aria-hidden="true">→</span></a></div>}
+      </article>)}</div>
+    </section>}
+    {!experts.length && <p class="form-note" style="margin-top: 2rem;">Aucun profil individuel n'est publié sans informations validées et autorisation.</p>}
+  </div></section>
+</SiteLayout>
